@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ttcertmanv2'
+    'ttcertmanv2',
+    'admin_reorder'
 ]
 
 MIDDLEWARE = [
@@ -48,7 +49,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder'
 ]
+
+
+
+ADMIN_REORDER = (
+
+    {'app': 'auth', 'label': 'Authorization'},
+    {'app': 'ttcertmanv2', 'label': 'Info','models': ('ttcertmanv2.serviceInfo', 'ttcertmanv2.platformInfo')},
+    {'app': 'ttcertmanv2', 'label': 'Scanning ', 'models': ('ttcertmanv2.networkScan', 'ttcertmanv2.urlControl','ttcertmanv2.scanFile')},
+    {'app': 'ttcertmanv2', 'label': 'Scan Records', 'models': ('ttcertmanv2.genesisCertificate', 'ttcertmanv2.scanRecords')},
+    {'app': 'ttcertmanv2', 'label': 'Status Records', 'models': ('ttcertmanv2.status', 'ttcertmanv2.controlType')},
+
+)
 
 ROOT_URLCONF = 'ttcertmanv2.urls'
 
