@@ -1,9 +1,13 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator, MinLengthValidator, MaxLengthValidator, ip_address_validators, EmailValidator, URLValidator, validate_ipv4_address
 import uuid
+from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import ttcertmanv2.importrecord
 
 class platformInfo(models.Model):
-    platform_id = models.IntegerField(primary_key=True, editable=False, verbose_name="Platform ID")
+    platform_id = models.IntegerField(primary_key=True, editable=False, verbose_name="Platform ID", auto_created=True)
     platform_name = models.CharField(max_length=255, editable=True, verbose_name="Platform Name")
     platform_owner = models.CharField(max_length=255, editable=True, verbose_name="Platform Owner")
     platform_email = models.CharField(max_length=255, editable=True, verbose_name="Platform Email")
@@ -123,3 +127,11 @@ class scanRecords(models.Model):
     cert_service_id = models.ForeignKey(serviceInfo,on_delete=models.PROTECT, verbose_name="Service ID")
 
 
+from ttcertmanv2.scanssl import extract_certificate
+
+# method for updating
+@receiver(post_save, sender=urlControl, dispatch_uid="update_cert_status")
+def post_update_url_control(sender : urlControl, instance, **kwargs):
+    cert_as_dict = extract_certificate(sender.url,sender.port)
+    ttcertmanv2.importrecord.update_cert(cert_as_dict, instance.cert_hostname, "-", "File Control", "Web Server")
+    instance.cert_id.save()
